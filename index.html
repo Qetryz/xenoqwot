@@ -2,16 +2,387 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="google-site-verification"
-        content="google598ddc68ecf82aac.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход с анимацией</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Matrix Social Network</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        form {
+            background: rgba(10, 10, 10, 0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 40px;
+            width: 320px;
+            color: #00ff88;
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.2);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 0 0 5px #00ff88;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: 1px solid #00ff88;
+            background-color: transparent;
+            color: #00ff88;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #00ff88;
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 15px;
+            height: 20px;
+            color: #ff4d4d;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Стили для социальной сети */
+        #social-content {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: rgba(10, 10, 10, 0.9);
+            border-right: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: rgba(10, 10, 10, 0.9);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            border: 1px solid #00ff88;
+            background: transparent;
+            color: #00ff88;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .post-form {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .post {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: #00ff88;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .post-author {
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .post-time {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .post-content {
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            color: #00ff88;
+        }
+
+        .user-name {
+            font-weight: bold;
+        }
+
+        .chat-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            border: 1px solid #00ff88;
+            background: transparent;
+            color: #00ff88;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-btn:hover {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .chat-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 500px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid rgba(0, 255, 136, 0.5);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .chat-header {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 350px;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            color: #00ff88;
+        }
+
+        .chat-message.own {
+            background: rgba(0, 255, 136, 0.1);
+            text-align: right;
+        }
+
+        .chat-message.other {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid rgba(0, 255, 136, 0.3);
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        .send-btn {
+            padding: 8px 15px;
+            border: 1px solid #00ff88;
+            background: transparent;
+            color: #00ff88;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #ff4d4d;
+            color: #000;
+        }
+
+        .search-box {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .user-profile {
+            color: #00ff88;
+            padding: 15px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .logout-btn {
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
+        }
+
+        .logout-btn:hover {
+            background: #ff4d4d;
+            color: #000;
+        }
+
+        .no-posts {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #00ff88;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .chat-window {
+                width: 90%;
+                height: 80%;
+            }
+        }
+    </style>
 </head>
 <body>
     <canvas id="matrix-canvas"></canvas>
 
-    <div class="login-container">
+    <!-- Форма входа -->
+    <div class="login-container hidden" id="login-container">
         <form id="login-form">
             <h2>Вход или Регистрация</h2>
             <div class="input-group">
@@ -34,14 +405,414 @@
         </form>
     </div>
 
-    <div id="site-content" class="hidden">
-        <div class="main-panel">
-            <h2 id="welcome-message">Добро пожаловать!</h2>
-            <p>Вы вошли в систему. Фон продолжает работать!</p>
-            <button id="logout-button">Выйти</button>
+    <!-- Основной интерфейс социальной сети -->
+    <div id="social-content" class="hidden">
+        <div class="sidebar">
+            <div class="user-profile">
+                <h3 id="profile-username">Пользователь</h3>
+                <p>Добро пожаловать в Matrix Social!</p>
+            </div>
+            <button class="logout-btn" onclick="logout()">Выйти</button>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="nav-tabs">
+                    <button class="nav-tab active" onclick="showTab('feed')">Лента</button>
+                    <button class="nav-tab" onclick="showTab('users')">Пользователи</button>
+                    <button class="nav-tab" onclick="showTab('chats')">Чаты</button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Лента постов -->
+                <div id="feed-content" class="tab-content">
+                    <div class="post-form">
+                        <h3>Создать пост</h3>
+                        <textarea id="post-content" placeholder="Что нового?" rows="3"></textarea>
+                        <br><br>
+                        <button onclick="createPost()">Опубликовать</button>
+                    </div>
+                    <div id="posts-container">
+                        <div class="loading">Загрузка постов...</div>
+                    </div>
+                </div>
+
+                <!-- Поиск пользователей -->
+                <div id="users-content" class="tab-content hidden">
+                    <div class="search-box">
+                        <input type="text" id="user-search" placeholder="Поиск пользователей..." onkeyup="searchUsers()">
+                    </div>
+                    <div id="users-container">
+                        <div class="loading">Загрузка пользователей...</div>
+                    </div>
+                </div>
+
+                <!-- Чаты -->
+                <div id="chats-content" class="tab-content hidden">
+                    <div id="chats-container">
+                        <div class="loading">Загрузка чатов...</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Окно чата -->
+    <div id="chat-window" class="chat-window hidden">
+        <div class="chat-header">
+            <span id="chat-username">Чат</span>
+            <button class="close-btn" onclick="closeChat()">×</button>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Введите сообщение..." onkeypress="handleChatKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()">Отправить</button>
+        </div>
+    </div>
+
+    <script>
+        // Переменные для Matrix анимации
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        const charArray = chars.split('');
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00ff88';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(draw, 33);
+
+        // Глобальные переменные
+        let currentUser = null;
+        let currentChat = null;
+        let chatPollingInterval = null;
+
+        // Элементы DOM
+        const loginContainer = document.getElementById('login-container');
+        const socialContent = document.getElementById('social-content');
+        const loginForm = document.getElementById('login-form');
+        const messageEl = document.getElementById('message');
+        const profileUsername = document.getElementById('profile-username');
+        const postsContainer = document.getElementById('posts-container');
+        const usersContainer = document.getElementById('users-container');
+        const chatsContainer = document.getElementById('chats-container');
+        const chatWindow = document.getElementById('chat-window');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+
+        // Функции аутентификации
+        function showLogin() {
+            loginContainer.classList.remove('hidden');
+            socialContent.classList.add('hidden');
+            chatWindow.classList.add('hidden');
+            currentUser = null;
+            clearInterval(chatPollingInterval);
+        }
+
+        function showSocial(username) {
+            loginContainer.classList.add('hidden');
+            socialContent.classList.remove('hidden');
+            profileUsername.textContent = username;
+            currentUser = username;
+            loadPosts();
+            loadUsers();
+            loadChats();
+        }
+
+        // Обработчик формы входа
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const action = event.submitter.value;
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            const username = loginForm.username.value;
+            messageEl.textContent = '';
+
+            let endpoint = action === 'register' ? '/api/register' : '/api/login';
+            let body = action === 'register' ? { email, username, password } : { email, password };
+
+            if (action === 'register' && !username) {
+                messageEl.textContent = 'Для регистрации нужен никнейм!';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    if (action === 'login') {
+                        showSocial(result.username);
+                    } else {
+                        messageEl.style.color = '#00ff88';
+                        messageEl.textContent = result.message;
+                    }
+                } else {
+                    messageEl.style.color = '#ff4d4d';
+                    messageEl.textContent = result.message;
+                }
+            } catch (error) {
+                messageEl.style.color = '#ff4d4d';
+                messageEl.textContent = 'Ошибка сети. Проверьте, запущен ли сервер.';
+            }
+        });
+
+        // Функции навигации
+        function showTab(tabName) {
+            // Скрываем все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Убираем активный класс у всех кнопок
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Показываем нужную вкладку
+            document.getElementById(tabName + '-content').classList.remove('hidden');
+            
+            // Активируем нужную кнопку
+            event.target.classList.add('active');
+        }
+
+        // Функции для работы с постами
+        async function createPost() {
+            const content = document.getElementById('post-content').value.trim();
+            if (!content) return;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: currentUser, content })
+                });
+
+                if (response.ok) {
+                    document.getElementById('post-content').value = '';
+                    loadPosts();
+                }
+            } catch (error) {
+                console.error('Ошибка создания поста:', error);
+            }
+        }
+
+        async function loadPosts() {
+            try {
+                const response = await fetch('http://localhost:3000/api/posts');
+                const posts = await response.json();
+                
+                if (posts.length === 0) {
+                    postsContainer.innerHTML = '<div class="no-posts">Пока нет постов. Создайте первый!</div>';
+                    return;
+                }
+
+                postsContainer.innerHTML = posts.map(post => `
+                    <div class="post">
+                        <div class="post-header">
+                            <span class="post-author">${post.username}</span>
+                            <span class="post-time">${new Date(post.createdAt).toLocaleString()}</span>
+                        </div>
+                        <div class="post-content">${post.content}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки постов:', error);
+                postsContainer.innerHTML = '<div class="no-posts">Ошибка загрузки постов</div>';
+            }
+        }
+
+        // Функции для работы с пользователями
+        async function loadUsers() {
+            try {
+                const response = await fetch('http://localhost:3000/api/users');
+                const users = await response.json();
+                
+                const filteredUsers = users.filter(user => user.username !== currentUser);
+                
+                if (filteredUsers.length === 0) {
+                    usersContainer.innerHTML = '<div class="no-posts">Пользователи не найдены</div>';
+                    return;
+                }
+
+                usersContainer.innerHTML = filteredUsers.map(user => `
+                    <div class="user-item">
+                        <span class="user-name">${user.username}</span>
+                        <button class="chat-btn" onclick="startChat('${user.username}')">Написать</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки пользователей:', error);
+                usersContainer.innerHTML = '<div class="no-posts">Ошибка загрузки пользователей</div>';
+            }
+        }
+
+        function searchUsers() {
+            const searchTerm = document.getElementById('user-search').value.toLowerCase();
+            const userItems = document.querySelectorAll('.user-item');
+            
+            userItems.forEach(item => {
+                const username = item.querySelector('.user-name').textContent.toLowerCase();
+                if (username.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Функции для работы с чатами
+        async function loadChats() {
+            try {
+                const response = await fetch(`http://localhost:3000/api/chats/${currentUser}`);
+                const chats = await response.json();
+                
+                if (chats.length === 0) {
+                    chatsContainer.innerHTML = '<div class="no-posts">У вас пока нет чатов</div>';
+                    return;
+                }
+
+                chatsContainer.innerHTML = chats.map(chat => {
+                    const otherUser = chat.participants.find(p => p !== currentUser);
+                    return `
+                        <div class="user-item">
+                            <span class="user-name">${otherUser}</span>
+                            <button class="chat-btn" onclick="openChat('${otherUser}')">Открыть чат</button>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки чатов:', error);
+                chatsContainer.innerHTML = '<div class="no-posts">Ошибка загрузки чатов</div>';
+            }
+        }
+
+        function startChat(username) {
+            openChat(username);
+            showTab('chats');
+        }
+
+        async function openChat(username) {
+            currentChat = username;
+            document.getElementById('chat-username').textContent = `Чат с ${username}`;
+            chatWindow.classList.remove('hidden');
+            
+            // Загружаем сообщения
+            await loadMessages();
+            
+            // Запускаем polling для обновления сообщений
+            if (chatPollingInterval) {
+                clearInterval(chatPollingInterval);
+            }
+            chatPollingInterval = setInterval(loadMessages, 2000);
+        }
+
+        function closeChat() {
+            chatWindow.classList.add('hidden');
+            currentChat = null;
+            if (chatPollingInterval) {
+                clearInterval(chatPollingInterval);
+            }
+        }
+
+        async function loadMessages() {
+            if (!currentChat) return;
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/messages/${currentUser}/${currentChat}`);
+                const messages = await response.json();
+                
+                chatMessages.innerHTML = messages.map(msg => `
+                    <div class="chat-message ${msg.sender === currentUser ? 'own' : 'other'}">
+                        <strong>${msg.sender}:</strong> ${msg.content}
+                        <div style="font-size: 10px; color: #666; margin-top: 5px;">
+                            ${new Date(msg.timestamp).toLocaleString()}
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Прокручиваем к последнему сообщению
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } catch (error) {
+                console.error('Ошибка загрузки сообщений:', error);
+            }
+        }
+
+        async function sendMessage() {
+            const content = chatInput.value.trim();
+            if (!content || !currentChat) return;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender: currentUser,
+                        receiver: currentChat,
+                        content
+                    })
+                });
+
+                if (response.ok) {
+                    chatInput.value = '';
+                    loadMessages();
+                    loadChats(); // Обновляем список чатов
+                }
+            } catch (error) {
+                console.error('Ошибка отправки сообщения:', error);
+            }
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function logout() {
+            showLogin();
+        }
+
+        // Проверяем, есть ли сохраненный пользователь
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            showSocial(savedUser);
+        } else {
+            showLogin();
+        }
+
+        // Обновляем размер canvas при изменении размера окна
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
 </body>
 </html>
