@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход с анимацией</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+
+    <div class="login-container">
+        <form id="login-form">
+            <h2>Вход или Регистрация</h2>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label for="username">Никнейм (для регистрации)</label>
+                <input type="text" id="username" name="username">
+            </div>
+            <div class="input-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="button-group">
+                <button type="submit" name="action" value="login">Войти</button>
+                <button type="submit" name="action" value="register">Регистрация</button>
+            </div>
+            <p id="message"></p>
+        </form>
+    </div>
+
+    <div id="site-content" class="hidden">
+        <div class="main-panel">
+            <h2 id="welcome-message">Добро пожаловать!</h2>
+            <p>Вы вошли в систему. Фон продолжает работать!</p>
+            <button id="logout-button">Выйти</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
